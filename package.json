@@ -1,0 +1,61 @@
+{
+  "name": "req-cooldown",
+  "author": "Kristaps Ragausis",
+  "license": "MIT",
+  "version": "0.0.1",
+  "description": "Cache duplicate requests",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KristapsR/req-cooldown.git"
+  },
+  "homepage": "https://github.com/KristapsR/req-cooldown#readme",
+  "bugs": {
+    "url": "https://github.com/KristapsR/req-cooldown/issues"
+  },
+  "keywords": [
+    "requests",
+    "cache",
+    "promises",
+    "cooldown",
+    "fastify",
+    "koa",
+    "express"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "release": "turbo build lint test attw && changeset publish",
+    "publish": "npm publish",
+    "lint": "tsc",
+    "attw": "attw --pack",
+    "test": "vitest run",
+    "change": "pnpm changeset"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "fastify-plugin": "^5.0.0",
+    "koa-body": "^6.0.0"
+  },
+  "devDependencies": {
+    "koa-body": "6.0.1",
+    "fastify-plugin": "5.0.1",
+    "@arethetypeswrong/cli": "^0.17.3",
+    "@changesets/cli": "^2.27.12",
+    "@types/koa": "^2.15.0",
+    "@types/koa-router": "7.4.8",
+    "fastify": "^5.2.1",
+    "koa": "^2.15.3",
+    "koa-router": "^13.0.1",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.6",
+    "turbo": "^2.3.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.4"
+  },
+  "packageManager": "pnpm@9.5.0",
+  "engines": {
+    "node": ">=16"
+  }
+}

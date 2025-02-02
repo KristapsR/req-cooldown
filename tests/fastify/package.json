@@ -1,0 +1,29 @@
+{
+  "name": "fastify",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "start": "tsx ./dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "lint": "tsc",
+    "relative": "relative-deps watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "relative-deps": "1.0.7",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3"
+  },
+  "dependencies": {
+    "fastify": "5.2.1",
+    "req-cooldown": "link:../.."
+  },
+  "relativeDependencies": {
+    "req-cooldown": "../../../req-cooldown"
+  }
+}
