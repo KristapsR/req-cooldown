@@ -27,7 +27,8 @@ export type AccessPluginOptions = {
   timeout?: number
 }
 
-type LogFn = (message?: unknown, ...optionalParams: unknown[]) => void
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LogFn = (message?: unknown, ...optionalParams: any[]) => void
 export type Logger = {
   info: LogFn
   warn: LogFn

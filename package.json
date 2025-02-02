@@ -19,6 +19,7 @@
     "cooldown",
     "fastify",
     "koa",
+    "hono",
     "express"
   ],
   "main": "dist/index.js",
@@ -37,6 +38,8 @@
   },
   "peerDependencies": {
     "fastify-plugin": "^5.0.0",
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.0.0",
     "koa-body": "^6.0.0"
   },
   "devDependencies": {
@@ -51,6 +54,8 @@
     "fastify": "^5.2.1",
     "fastify-plugin": "5.0.1",
     "globals": "^15.14.0",
+    "@hono/node-server": "^1.13.7",
+    "hono": "4.6.19",
     "koa": "^2.15.3",
     "koa-body": "6.0.1",
     "koa-router": "^13.0.1",
