@@ -16,6 +16,7 @@ describe('koa', async () => {
     router.get('/two', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const [response1, response2, response22] = await Promise.all([
       request.get('/one').set('x-request-id', '1'),
@@ -29,6 +30,7 @@ describe('koa', async () => {
     expect(response1.text).toEqual('1')
     expect(response2.text).toEqual('2')
     expect(response22.text).toEqual('2')
+    server.close()
   })
 
   it('requests promise should be only cached while it is in progress', async () => {
@@ -37,6 +39,7 @@ describe('koa', async () => {
     router.get('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.get('/one').set('x-request-id', '1'),
@@ -52,6 +55,7 @@ describe('koa', async () => {
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('1')
     expect(responses[2].text).toEqual('3')
+    server.close()
   })
 
   it('timeout should fire when there is other request waiting for response', async () => {
@@ -68,6 +72,7 @@ describe('koa', async () => {
     router.get('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.get('/one').set('x-request-id', '1'),
@@ -81,6 +86,7 @@ describe('koa', async () => {
     if (assertionError.error) throw assertionError.error
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('timeout')
+    server.close()
   })
 
   it('should not cache same path requests from different ip addresses', async () => {
@@ -89,6 +95,7 @@ describe('koa', async () => {
     router.get('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request
@@ -113,6 +120,7 @@ describe('koa', async () => {
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('1')
     expect(responses[2].text).toEqual('3')
+    server.close()
   })
 
   it('should not cache same path requests for different users', async () => {
@@ -123,6 +131,7 @@ describe('koa', async () => {
     router.get('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.get('/one').set('x-request-id', '1').set('x-user-id', '1'),
@@ -136,6 +145,7 @@ describe('koa', async () => {
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('1')
     expect(responses[2].text).toEqual('3')
+    server.close()
   })
 
   it('should continue with original request handler if badReply callback does not send reply', async () => {
@@ -168,6 +178,7 @@ describe('koa', async () => {
     )
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.get('/one').set('x-request-id', 'badReply'),
@@ -196,6 +207,7 @@ describe('koa', async () => {
     expect(responses[3].text).toEqual('2')
     expect(responses[2].headers['content-type']).toMatch(/^application\/json/)
     expect(responses[3].headers['content-type']).toMatch(/^text\/plain/)
+    server.close()
   })
 
   it('should respond with reply made in badReply callback', async () => {
@@ -231,6 +243,7 @@ describe('koa', async () => {
     )
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.get('/one').set('x-request-id', 'badReply'),
@@ -259,6 +272,7 @@ describe('koa', async () => {
     expect(responses[3].text).toEqual('badReply')
     expect(responses[2].headers['content-type']).toMatch(/^application\/json/)
     expect(responses[3].headers['content-type']).toMatch(/^text\/plain/)
+    server.close()
   })
 
   it('should not cache POST requests by default', async () => {
@@ -267,6 +281,7 @@ describe('koa', async () => {
     router.post('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.post('/one').send({ foo: 'bar' }).set('x-request-id', '1'),
@@ -276,6 +291,7 @@ describe('koa', async () => {
     if (assertionError.error) throw assertionError.error
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('2')
+    server.close()
   })
 
   it('should cache POST requests if configured and take into account request body', async () => {
@@ -286,6 +302,7 @@ describe('koa', async () => {
     router.post('/one', getRequestHandler())
 
     app.use(router.routes())
+    const server = app.listen(0)
 
     const responses = await Promise.all([
       request.post('/one').send({ foo: 'bar' }).set('x-request-id', '1'),
@@ -299,5 +316,6 @@ describe('koa', async () => {
     expect(responses[0].text).toEqual('1')
     expect(responses[1].text).toEqual('1')
     expect(responses[2].text).toEqual('3')
+    server.close()
   })
 })
