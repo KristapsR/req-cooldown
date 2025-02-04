@@ -1,9 +1,8 @@
 import type { Middleware } from 'koa'
 
 import type { KoaCoolDownProps } from './types'
-import type { StoreEntry, ResolveResponse } from '../types'
-
 import { DEFAULT_METHODS, DEFAULT_TIMEOUT } from '../constants'
+import type { ResolveResponse, StoreEntry } from '../types'
 
 const defaultOptions = {
   methods: DEFAULT_METHODS,

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  REQUEST_DELAY,
   delayRequest,
   getApp,
   getRequestHandler,
-  REQUEST_DELAY,
 } from './utils/fastify'
 import { sleep } from './utils/general'
 

@@ -1,12 +1,12 @@
 import Koa, { type Middleware, type Next, type ParameterizedContext } from 'koa'
-import Router from 'koa-router'
 import { koaBody } from 'koa-body'
-import supertest from 'supertest'
+import Router from 'koa-router'
 import logger from 'pino'
+import supertest from 'supertest'
 
-import type { KoaCoolDownProps } from '../../src/koa/types'
-import { koaCoolDown } from '../../src'
 import { sleep } from './general'
+import { koaCoolDown } from '../../src'
+import type { KoaCoolDownProps } from '../../src/koa/types'
 
 export const REQUEST_DELAY = 10
 

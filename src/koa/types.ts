@@ -1,6 +1,6 @@
 import type { Next, ParameterizedContext } from 'koa'
 
-import type { BadReply, AccessPluginOptions, Logger } from '../types'
+import type { AccessPluginOptions, BadReply, Logger } from '../types'
 
 declare module 'koa' {
   interface Request {

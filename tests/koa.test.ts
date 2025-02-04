@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { sleep } from './utils/general'
 import {
+  REQUEST_DELAY,
   delayRequest,
   getApp,
   getRequestHandler,
-  REQUEST_DELAY,
 } from './utils/koa'
-import { sleep } from './utils/general'
 
 describe('koa', async () => {
   it('requests to same path should be cached but to different paths should not be cached', async () => {
