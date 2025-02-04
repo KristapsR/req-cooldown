@@ -6,6 +6,7 @@ import {
   getRequestHandler,
   REQUEST_DELAY,
 } from './utils/fastify'
+import { sleep } from './utils/general'
 
 describe('fastify', async () => {
   it('request context contains proper helpers', async () => {
@@ -47,11 +48,13 @@ describe('fastify', async () => {
         path: '/two',
         headers: { 'x-request-id': '2' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/two',
-        headers: { 'x-request-id': '3' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/two',
+          headers: { 'x-request-id': '3' },
+        })
+      ),
     ])
 
     if (assertionError.error) throw assertionError.error
@@ -126,7 +129,7 @@ describe('fastify', async () => {
 
     const { fastify, assertionError } = await getApp({
       timeout: REQUEST_DELAY / 2,
-      onTimeout: (req, reply, done) => {
+      onTimeout: (req, reply) => {
         timedOut = true
         reply.send('timeout')
       },
@@ -154,11 +157,13 @@ describe('fastify', async () => {
         path: '/one',
         headers: { 'x-request-id': '1' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        headers: { 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
     ])
 
     expect(timedOut).toEqual(true)
@@ -182,18 +187,22 @@ describe('fastify', async () => {
         remoteAddress: '10.0.0.101',
         headers: { 'x-request-id': '1' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        remoteAddress: '10.0.0.101',
-        headers: { 'x-request-id': '2' },
-      }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        remoteAddress: '10.0.0.102',
-        headers: { 'x-request-id': '3' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          remoteAddress: '10.0.0.101',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          remoteAddress: '10.0.0.102',
+          headers: { 'x-request-id': '3' },
+        })
+      ),
     ])
 
     if (assertionError.error) throw assertionError.error
@@ -217,11 +226,13 @@ describe('fastify', async () => {
         path: '/one',
         headers: { 'x-user-id': '1', 'x-request-id': '1' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        headers: { 'x-user-id': '1', 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          headers: { 'x-user-id': '1', 'x-request-id': '2' },
+        })
+      ),
       fastify.inject({
         method: 'GET',
         path: '/one',
@@ -269,21 +280,25 @@ describe('fastify', async () => {
         path: '/one',
         headers: { 'x-request-id': 'badReply' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        headers: { 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
       fastify.inject({
         method: 'GET',
         path: '/two',
         headers: { 'x-request-id': 'badReply' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/two',
-        headers: { 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/two',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
     ])
 
     if (assertionError.error) throw assertionError.error
@@ -306,7 +321,7 @@ describe('fastify', async () => {
 
   it('should respond with reply made in badReply callback', async () => {
     const { fastify, assertionError } = await getApp({
-      onBadReply: (req, reply, badReply, done) => {
+      onBadReply: (req, reply) => {
         reply.statusCode = 400
         reply.send('badReply')
       },
@@ -314,8 +329,9 @@ describe('fastify', async () => {
 
     fastify.get(
       '/one',
-      getRequestHandler((request, reply) => {
+      getRequestHandler(async (request, reply) => {
         if (request.headers['x-request-id'] === 'badReply') {
+          await sleep(REQUEST_DELAY / 2)
           reply.statusCode = 418
           reply.send("I'm a teapot")
           return
@@ -324,8 +340,9 @@ describe('fastify', async () => {
     )
     fastify.get(
       '/two',
-      getRequestHandler((request, reply) => {
+      getRequestHandler(async (request, reply) => {
         if (request.headers['x-request-id'] === 'badReply') {
+          await sleep(REQUEST_DELAY / 2)
           reply.statusCode = 404
           reply.send({ badReply: true })
           return
@@ -341,21 +358,25 @@ describe('fastify', async () => {
         path: '/one',
         headers: { 'x-request-id': 'badReply' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/one',
-        headers: { 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/one',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
       fastify.inject({
         method: 'GET',
         path: '/two',
         headers: { 'x-request-id': 'badReply' },
       }),
-      fastify.inject({
-        method: 'GET',
-        path: '/two',
-        headers: { 'x-request-id': '2' },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'GET',
+          path: '/two',
+          headers: { 'x-request-id': '2' },
+        })
+      ),
     ])
 
     if (assertionError.error) throw assertionError.error
@@ -426,15 +447,17 @@ describe('fastify', async () => {
           'content-type': 'application/json',
         },
       }),
-      fastify.inject({
-        method: 'POST',
-        path: '/one',
-        payload: { foo: 'bar' },
-        headers: {
-          'x-request-id': '2',
-          'content-type': 'application/json',
-        },
-      }),
+      delayRequest(REQUEST_DELAY / 4, () =>
+        fastify.inject({
+          method: 'POST',
+          path: '/one',
+          payload: { foo: 'bar' },
+          headers: {
+            'x-request-id': '2',
+            'content-type': 'application/json',
+          },
+        })
+      ),
       fastify.inject({
         method: 'POST',
         path: '/one',
