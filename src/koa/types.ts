@@ -4,7 +4,7 @@ import type { BadReply, AccessPluginOptions, Logger } from '../types'
 
 declare module 'koa' {
   interface Request {
-    body?: any
+    body?: unknown
   }
 }
 

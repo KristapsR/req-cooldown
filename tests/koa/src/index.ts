@@ -8,13 +8,33 @@ import { v4 as uuid4 } from 'uuid'
 type AppContext = { user: { id: number; name: string }; requestId: string }
 
 declare module 'koa' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface BaseContext extends AppContext {}
 }
 
 const app = new Koa()
 const router = new Router()
 app.use(koaBody())
+app.use(
+  koaCoolDown({
+    methods: ['GET', 'POST'],
+    timeout: 15000,
+    getUserKey: (req) => JSON.stringify(req.user),
+    onBadReply: async (ctx, badReply) => {
+      console.log('onBadReply', badReply)
+      ctx.body = badReply
+    },
+
+    onTimeout: async (ctx) => {
+      console.log('onTimeout')
+      ctx.status = 408
+      ctx.body = { error: 'Request timeout' }
+    },
+    // logger: console,
+    logger: logger(),
+    getRequestId: (ctx) => ctx.requestId,
+  })
+)
 
 // Add request cooldown middleware to specific routes
 router.all(
@@ -24,24 +44,7 @@ router.all(
     ctx.requestId = uuid4()
     return next()
   },
-  koaCoolDown({
-    methods: ['GET', 'POST'],
-    timeout: 15000,
-    getUserKey: (req) => JSON.stringify(req.user),
-    onBadReply: async (ctx, badReply, next) => {
-      console.log('onBadReply', badReply)
-      ctx.body = badReply
-    },
 
-    onTimeout: async (ctx, next) => {
-      console.log('onTimeout')
-      ctx.status = 408
-      ctx.body = { error: 'Request timeout' }
-    },
-    // logger: console,
-    logger: logger(),
-    getRequestId: (ctx) => ctx.requestId,
-  }),
   async (ctx) => {
     // Simulate some delay
     await new Promise((resolve) => setTimeout(resolve, 10000))
