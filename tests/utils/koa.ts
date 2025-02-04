@@ -8,7 +8,7 @@ import { sleep } from './general'
 import { koaCoolDown } from '../../src'
 import type { KoaCoolDownProps } from '../../src/koa/types'
 
-export const REQUEST_DELAY = 10
+export const REQUEST_DELAY = 20
 
 export const getApp = async (props?: KoaCoolDownProps) => {
   const assertionError: { error?: Error | undefined } = {}
