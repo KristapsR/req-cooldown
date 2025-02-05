@@ -1,9 +1,8 @@
-import Router from 'koa-router'
+import type { Middleware } from 'koa'
 
 import type { KoaCoolDownProps } from './types'
-import type { StoreEntry, ResolveResponse } from '../types'
-
 import { DEFAULT_METHODS, DEFAULT_TIMEOUT } from '../constants'
+import type { ResolveResponse, StoreEntry } from '../types'
 
 const defaultOptions = {
   methods: DEFAULT_METHODS,
@@ -13,7 +12,7 @@ const defaultOptions = {
 
 export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
   opts?: KoaCoolDownProps<StateT, CustomT>
-): Router.IMiddleware<StateT, CustomT> {
+): Middleware<StateT, CustomT> {
   const promiseStore: Record<string, StoreEntry> = {}
   const options = Object.assign({}, defaultOptions, opts)
 
@@ -106,11 +105,12 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
         if (reqCooldownTimedOut) {
           logger.warn('Got results after req-cooldown timeout')
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error)
         reqCooldownResolve({
           badReply: {
             statusCode: 500,
-            payload: { error: error.message },
+            payload: { error: message },
             type: 'application/json',
           },
         })

@@ -4,6 +4,7 @@ import { fastifyCoolDown } from 'req-cooldown'
 type Context = { user: { id: number; name: string } }
 
 declare module 'fastify' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface FastifyRequest extends Context {}
 }
 
@@ -18,11 +19,11 @@ fastify.register(fastifyCoolDown, {
   methods: ['GET', 'POST'],
   timeout: 15000,
   getUserKey: (req) => JSON.stringify(req.user),
-  onBadReply: (req, reply, badReply, done) => {
+  onBadReply: (req, reply, badReply) => {
     console.log('onBadReply', badReply)
     reply.send(badReply)
   },
-  onTimeout: (req, reply, done) => {
+  onTimeout: () => {
     console.log('onTimeout')
   },
 })

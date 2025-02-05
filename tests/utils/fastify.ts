@@ -1,13 +1,13 @@
 import Fastify, {
   type FastifyReply,
+  type FastifyRequest,
   type LightMyRequestResponse,
   type RouteHandlerMethod,
-  type FastifyRequest,
 } from 'fastify'
 
-import type { FastifyCoolDownProps } from '../../src/fastify/types'
-import { fastifyCoolDown } from '../../src'
 import { sleep } from './general'
+import { fastifyCoolDown } from '../../src'
+import type { FastifyCoolDownProps } from '../../src/fastify/types'
 
 export const REQUEST_DELAY = 10
 

@@ -1,7 +1,7 @@
-import type { FastifyRequest } from 'fastify/types/request'
 import type { FastifyReply } from 'fastify/types/reply'
+import type { FastifyRequest } from 'fastify/types/request'
 
-import type { ResolveResponse, AccessPluginOptions, BadReply } from '../types'
+import type { AccessPluginOptions, BadReply, ResolveResponse } from '../types'
 
 type CoolDownContext = {
   reqCooldownResolve?: (
@@ -11,6 +11,7 @@ type CoolDownContext = {
 }
 
 declare module 'fastify' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface FastifyRequest extends CoolDownContext {}
 }
 

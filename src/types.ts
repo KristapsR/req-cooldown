@@ -27,7 +27,7 @@ export type AccessPluginOptions = {
   timeout?: number
 }
 
-type LogFn = (message?: any, ...optionalParams: any[]) => void
+type LogFn = (message?: unknown, ...optionalParams: unknown[]) => void
 export type Logger = {
   info: LogFn
   warn: LogFn
