@@ -1,8 +1,12 @@
 import type { Middleware } from 'koa'
 
-import type { KoaCoolDownProps } from './types'
-import { DEFAULT_METHODS, DEFAULT_TIMEOUT } from '../constants'
-import type { ResolveResponse, StoreEntry } from '../types'
+import { getHeaderValue, type KoaCoolDownProps } from './types'
+import {
+  DEFAULT_METHODS,
+  DEFAULT_TIMEOUT,
+  REQ_BODY_METHODS,
+} from '../constants'
+import type { ReqCooldownResolver, ResolveResponse, StoreEntry } from '../types'
 
 const defaultOptions = {
   methods: DEFAULT_METHODS,
@@ -38,16 +42,17 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
         user: options?.getUserKey?.(ctx) ?? ctx.ip,
         method: ctx.method,
         url: ctx.url,
-        body: ctx.request.body,
+        // TODO Handle streams
+        body: REQ_BODY_METHODS.includes(ctx.method.toUpperCase())
+          ? ctx.request.body
+          : undefined,
       })
 
     const cached = promiseStore[key]
 
     if (!cached) {
       let reqCooldownTimedOut = false
-      let reqCooldownResolve: (
-        value: ResolveResponse | PromiseLike<ResolveResponse>
-      ) => void = () => {}
+      let reqCooldownResolve: ReqCooldownResolver = () => {}
 
       const cached: Omit<StoreEntry, 'coolDown'> & {
         coolDown?: StoreEntry['coolDown']
@@ -85,20 +90,21 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
         await next()
 
         // Handle response
-        if (ctx.status !== 200) {
+        if (ctx.status < 200 || ctx.status >= 300) {
           reqCooldownResolve({
             badReply: {
               statusCode: ctx.status,
               payload: ctx.body,
-              type: ctx.response.get('Content-Type') || null,
+              type: ctx.response.get('Content-Type') ?? null,
+              headers: ctx.response.headers,
             },
           })
         } else {
           reqCooldownResolve({
             payload: ctx.body,
-            type: ctx.response.get('Content-Type') || null,
-            lastModified: ctx.response.get('Last-Modified') || null,
-            etag: ctx.response.get('etag') || null,
+            type: ctx.response.get('Content-Type') ?? null,
+            lastModified: ctx.response.get('Last-Modified') ?? null,
+            headers: ctx.response.headers,
           })
         }
 
@@ -112,6 +118,7 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
             statusCode: 500,
             payload: { error: message },
             type: 'application/json',
+            headers: ctx.response.headers,
           },
         })
         throw error
@@ -135,6 +142,15 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
       if (options?.onBadReply)
         return options.onBadReply(ctx, result.badReply, next)
 
+      for (const [key, value] of Object.entries(result.badReply.headers)) {
+        if (value === undefined) continue
+        if (Array.isArray(value)) {
+          for (const v of value) ctx.set(key, v)
+          continue
+        }
+        ctx.set(key, `${value}`)
+      }
+
       ctx.status = result.badReply.statusCode
       if (result.badReply.type)
         ctx.set(
@@ -147,23 +163,19 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
       return
     }
 
-    if (result.type)
-      ctx.set(
-        'Content-Type',
-        typeof result.type === 'number' ? String(result.type) : result.type
-      )
+    for (const [key, value] of Object.entries(result.headers)) {
+      if (value === undefined) continue
+      if (Array.isArray(value)) {
+        for (const v of value) ctx.set(key, v)
+        continue
+      }
+      ctx.set(key, `${value}`)
+    }
+
+    if (result.type) ctx.set('Content-Type', getHeaderValue(result.type))
     if (result.lastModified)
-      ctx.set(
-        'Last-Modified',
-        typeof result.lastModified === 'number'
-          ? String(result.lastModified)
-          : result.lastModified
-      )
-    if (result.etag)
-      ctx.set(
-        'etag',
-        typeof result.etag === 'number' ? String(result.etag) : result.etag
-      )
+      ctx.set('Last-Modified', getHeaderValue(result.lastModified))
+
     ctx.body = result.payload
 
     logger.debug({ coolReqId: cached.reqId }, 'Cool response')

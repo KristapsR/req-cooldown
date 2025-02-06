@@ -51,6 +51,7 @@ export const getRequestHandler =
       return
     }
 
+    ctx.set('x-request-id', `${ctx.request.header['x-request-id']}`)
     ctx.body = ctx.request.header['x-request-id']
   }
 

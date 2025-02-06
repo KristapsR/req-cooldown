@@ -9,7 +9,7 @@ import { sleep } from './general'
 import { fastifyCoolDown } from '../../src'
 import type { FastifyCoolDownProps } from '../../src/fastify/types'
 
-export const REQUEST_DELAY = 10
+export const REQUEST_DELAY = 20
 
 export const getApp = async (props?: FastifyCoolDownProps) => {
   const assertionError: { error?: Error | undefined } = {}
@@ -55,6 +55,7 @@ export const getRequestHandler =
       return
     }
 
+    reply.header('x-request-id', request.headers['x-request-id'])
     reply.send(request.headers['x-request-id'])
   }
 

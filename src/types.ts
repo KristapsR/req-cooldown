@@ -4,10 +4,15 @@ export type StoreEntry = {
   coolDown: Promise<ResolveResponse>
 }
 
+export type ReqCooldownResolver = (
+  value: ResolveResponse | Promise<ResolveResponse>
+) => void
+
 export type BadReply = {
   statusCode: number
   payload: unknown
   type?: string | string[] | number | null
+  headers: Record<string, number | string | string[] | undefined>
 }
 
 export type ResolveResponse =
@@ -15,7 +20,7 @@ export type ResolveResponse =
       payload: unknown
       type?: string | string[] | number | null
       lastModified?: string | string[] | number | null
-      etag?: string | string[] | number | null
+      headers: Record<string, number | string | string[] | undefined>
     }
   | {
       badReply: BadReply

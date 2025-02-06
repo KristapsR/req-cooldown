@@ -28,8 +28,11 @@ describe('koa', async () => {
 
     if (assertionError.error) throw assertionError.error
     expect(response1.text).toEqual('1')
+    expect(response1.headers['x-request-id']).toEqual('1')
     expect(response2.text).toEqual('2')
+    expect(response2.headers['x-request-id']).toEqual('2')
     expect(response22.text).toEqual('2')
+    expect(response22.headers['x-request-id']).toEqual('2')
     server.close()
   })
 

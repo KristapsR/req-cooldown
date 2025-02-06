@@ -1,7 +1,11 @@
 import fastifyPlugin from 'fastify-plugin'
 
 import type { FastifyCoolDownProps } from './types'
-import { DEFAULT_METHODS, DEFAULT_TIMEOUT } from '../constants'
+import {
+  DEFAULT_METHODS,
+  DEFAULT_TIMEOUT,
+  REQ_BODY_METHODS,
+} from '../constants'
 import type { ResolveResponse, StoreEntry } from '../types'
 
 const defaultOptions = {
@@ -32,7 +36,10 @@ export const fastifyCoolDown = fastifyPlugin<FastifyCoolDownProps>(
           user: options.getUserKey?.(req) ?? req.ip,
           method: req.method,
           url: req.originalUrl,
-          body: req.body,
+          // TODO Handle streams
+          body: REQ_BODY_METHODS.includes(req.method.toUpperCase())
+            ? req.body
+            : undefined,
         })
 
       const cached = promiseStore[key]
@@ -91,15 +98,16 @@ export const fastifyCoolDown = fastifyPlugin<FastifyCoolDownProps>(
         if (options.onBadReply)
           return options.onBadReply(req, reply, result.badReply, done)
 
+        reply.headers(result.badReply.headers)
         reply.header('Content-Type', result.badReply.type)
         reply.status(result.badReply.statusCode)
         reply.send(result.badReply.payload)
         return
       }
 
+      reply.headers(result.headers)
       reply.header('Content-Type', result.type)
       reply.header('Last-Modified', result.lastModified)
-      reply.header('etag', result.etag)
       reply.send(result.payload)
 
       logger?.debug({ coolReqId: cached.reqId }, 'Cool response')
@@ -114,21 +122,22 @@ export const fastifyCoolDown = fastifyPlugin<FastifyCoolDownProps>(
             )
           : undefined
 
-      if (reply.statusCode !== 200) {
+      if (reply.statusCode < 200 || reply.statusCode >= 300) {
         return req.reqCooldownResolve?.({
           badReply: {
             statusCode: reply.statusCode,
             payload: payload,
-            type: reply.getHeader('Content-Type') || null,
+            type: reply.getHeader('Content-Type') ?? null,
+            headers: reply.getHeaders(),
           },
         })
       }
 
       req.reqCooldownResolve?.({
         payload: payload,
-        type: reply.getHeader('Content-Type') || null,
-        lastModified: reply.getHeader('Last-Modified') || null,
-        etag: reply.getHeader('etag') || null,
+        type: reply.getHeader('Content-Type') ?? null,
+        lastModified: reply.getHeader('Last-Modified') ?? null,
+        headers: reply.getHeaders(),
       })
 
       if (req.reqCooldownTimedOut) {
