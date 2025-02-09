@@ -7,12 +7,12 @@ Results are not cached. If you need caching, use a caching middleware. This is j
 ## Features
 
 - Respond to multiple identical requests with results from first request
-- User specific session key for cache key
+- User-specific session key for cache key
 
 ## Todo
 
 - [ ] Improve readme file (install notes, build status, coverage?)
-- [ ] Check if there are some cases that are no covered, eg. different responese statuses, headers, body types, etc.
+- [ ] Check if there are some cases that are not covered, eg. different responese statuses, headers, body types, etc.
 - [ ] Add tests for different body types
 - [ ] Add tests for different response statuses
 - [ ] Add tests for different response headers
