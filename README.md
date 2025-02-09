@@ -9,7 +9,7 @@ Results are not cached. If you need caching, use a caching middleware. This is j
 - Respond to multiple identical requests with results from first request
 - User-specific session key for cache key
 
-## Todo
+## To-Do
 
 - [ ] Improve readme file (install notes, build status, coverage?)
 - [ ] Check if there are some cases that are not covered, eg. different responese statuses, headers, body types, etc.
