@@ -59,8 +59,11 @@ describe('fastify', async () => {
 
     if (assertionError.error) throw assertionError.error
     expect(response1.body).toEqual('1')
+    expect(response1.headers['x-request-id']).toEqual('1')
     expect(response2.body).toEqual('2')
+    expect(response2.headers['x-request-id']).toEqual('2')
     expect(response22.body).toEqual('2')
+    expect(response22.headers['x-request-id']).toEqual('2')
   })
 
   it('requests promise should be only cached while it is in progress', async () => {

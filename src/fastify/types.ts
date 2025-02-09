@@ -1,12 +1,14 @@
 import type { FastifyReply } from 'fastify/types/reply'
 import type { FastifyRequest } from 'fastify/types/request'
 
-import type { AccessPluginOptions, BadReply, ResolveResponse } from '../types'
+import type {
+  AccessPluginOptions,
+  BadReply,
+  ReqCooldownResolver,
+} from '../types'
 
 type CoolDownContext = {
-  reqCooldownResolve?: (
-    value: ResolveResponse | PromiseLike<ResolveResponse>
-  ) => void
+  reqCooldownResolve?: ReqCooldownResolver
   reqCooldownTimedOut?: boolean
 }
 

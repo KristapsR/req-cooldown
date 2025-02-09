@@ -26,3 +26,6 @@ export type KoaCoolDownProps<
   getRequestId?: (context: ParameterizedContext<StateT, CustomT>) => string
   logger?: Logger | ((context: ParameterizedContext<StateT, CustomT>) => Logger)
 }
+
+export const getHeaderValue = (value?: string | number | string[]) =>
+  typeof value === 'number' ? String(value) : value ?? ''
