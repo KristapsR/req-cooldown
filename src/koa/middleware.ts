@@ -52,7 +52,9 @@ export function koaCoolDown<StateT = unknown, CustomT extends object = object>(
 
     if (!cached) {
       let reqCooldownTimedOut = false
-      let reqCooldownResolve: ReqCooldownResolver = () => {}
+      let reqCooldownResolve: ReqCooldownResolver = () => {
+        throw new Error('Request Cool-Down promise not initialized')
+      }
 
       const cached: Omit<StoreEntry, 'coolDown'> & {
         coolDown?: StoreEntry['coolDown']
